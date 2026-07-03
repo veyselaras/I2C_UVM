@@ -31,17 +31,17 @@
     virtual function void write_apb(apb_seq_item item);
       bit [7:0] exp_byte;
 
-      // RX register read yakala (read yönü)
+      // Capture RX register read (read direction)
       if(item.addr == 12'h008 && item.dir == APB_READ) begin
         if(expected_rx.size() == 0) begin
-          // I2C tarafı henüz gelmedi, RX'i pending'e koy
+          // I2C side has not arrived yet, put RX into pending.
           pending_rx = item.rdata[7:0];
           pending_rx_valid = 1;
           `uvm_info("SCB", $sformatf("RX read 0x%02h pending, waiting for I2C", pending_rx), UVM_HIGH)
           return;
         end
 
-        // I2C tarafı önce geldi, direkt karşılaştır
+        // I2C side arrived first; compare directly.
         exp_byte = expected_rx.pop_front();
 
         if(exp_byte == item.rdata[7:0]) begin
@@ -105,7 +105,7 @@
 
         I2C_READ: begin
           if(pending_rx_valid) begin
-            // APB RX read zaten geldi, direkt karşılaştır
+            // APB RX read has already arrived; compare directly.
             if(pending_rx == txn.data) begin
               matches_cnt++;
               `uvm_info("SCB", $sformatf("READ MATCH: I2C=0x%02h RX=0x%02h", txn.data, pending_rx), UVM_LOW)
@@ -117,7 +117,7 @@
             pending_rx_valid = 0;
           end
           else begin
-            // APB RX read henüz gelmedi, I2C data'yı bekletmeye al
+            // APB RX read has not arrived yet; hold the I2C data.
             expected_rx.push_back(txn.data);
             `uvm_info("SCB", $sformatf("I2C read data 0x%02h -> expected_rx queue", txn.data), UVM_LOW)
           end

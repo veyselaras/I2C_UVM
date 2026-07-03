@@ -12,7 +12,7 @@
       phase.raise_objection(this);
       #100ns;
 
-      // PRE register — RW, volatile=0, check edilecek
+      // PRE register — RW, volatile=0, will be checked.
       begin
         apb_base_sequence seq = apb_base_sequence::type_id::create("seq");
         void'(seq.randomize() with { addr == 12'h000; wdata == 32'h0010; dir == APB_WRITE; delay == 0; });
@@ -25,7 +25,7 @@
         seq.start(env.agent_apb.sequencer);
       end
 
-      // CTR register — RW, volatile=0, check edilecek
+      // CTR register — RW, non-volatile, check enabled.
       begin
         apb_base_sequence seq = apb_base_sequence::type_id::create("seq");
         void'(seq.randomize() with { addr == 12'h004; wdata == 32'h0080; dir == APB_WRITE; delay == 0; });
@@ -38,7 +38,7 @@
         seq.start(env.agent_apb.sequencer);
       end
 
-      // TX register — RW, volatile=0, check edilecek
+      // TX register — RW, non-volatile, check enabled.
       begin
         apb_base_sequence seq = apb_base_sequence::type_id::create("seq");
         void'(seq.randomize() with { addr == 12'h010; wdata == 32'h00AB; dir == APB_WRITE; delay == 0; });

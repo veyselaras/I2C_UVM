@@ -22,7 +22,7 @@ module testbench();
     reset_n = 1;
   end
   
-  // Interface'ler
+  // Interfaces
   apb_if  inst_apb_if(.pclk(clk), .preset_n(reset_n));
   i2c_if  inst_i2c_if(.clk(clk), .reset_n(reset_n));
 

@@ -16,7 +16,7 @@
       
       uvm_config_db#(bit[7:0])::set(this, "*", "read_data", 8'h55);
       
-      // Forever sequence'ı paralel başlat
+      // Start the forever sequence in parallel.
       fork
         begin
           i2c_forever_sequence i2c_seq = i2c_forever_sequence::type_id::create("i2c_seq");
@@ -35,7 +35,7 @@
       // 3. TX = 0xFF (slave addr 0x7F + R bit)
       env.model.reg_block.TX.write(status, 8'hFF);
       
-      // 4. CMD = 0x90 (START + WRITE, adres göndermek için hâlâ WRITE)
+      // 4. CMD = 0x90 (START + WRITE, still WRITE to send the address)
       env.model.reg_block.CMD.write(status, 8'h90);
       
       // 5. Poll TIP=0
@@ -53,7 +53,7 @@
       else
         `uvm_info("RAL_TEST", "Slave ACK received", UVM_LOW)
       
-      // 7. CMD = 0x20 (RD - data oku)
+      // 7. CMD = 0x20 (RD - read data)
       env.model.reg_block.CMD.write(status, 8'h20);
       
       // 8. Poll TIP=0
@@ -70,7 +70,7 @@
       else
         `uvm_info("RAL_TEST", "Data byte ACK received", UVM_LOW)
       
-      // 9. RX register oku
+      // 9. Read RX register
       env.model.reg_block.RX.read(status, rdata);
       `uvm_info("READ_TEST", $sformatf("RX read: 0x%02h", rdata[7:0]), UVM_LOW)
       

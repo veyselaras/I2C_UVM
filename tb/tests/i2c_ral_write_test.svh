@@ -14,7 +14,7 @@
       
       phase.raise_objection(this, "TEST_DONE");
       
-      // Forever sequence'ı paralel başlat
+      // Start the forever sequence in parallel.
       fork
         begin
           i2c_forever_sequence i2c_seq = i2c_forever_sequence::type_id::create("i2c_seq");

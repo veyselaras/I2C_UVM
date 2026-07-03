@@ -24,7 +24,7 @@
       begin
         apb_base_sequence seq;
         
-//         1     PRE      0x000   0x0400  Prescaler (SCL hızı)
+//         1     PRE      0x000   0x0400  Prescaler (SCL speed)
         seq = apb_base_sequence::type_id::create("seq");
       
         if (!seq.randomize() with { addr == 12'h000; wdata == 32'h0010; dir == APB_WRITE; }) begin
@@ -45,7 +45,7 @@
       
         `uvm_info("TEST_DEBUG", $sformatf("item: %0s", seq.req.convert2string()), UVM_LOW)
         
-//         3     TX       0x010   0x00    slave_addr + W bit (sen belirle)
+//         3     TX       0x010   0x00    slave_addr + W bit (user-defined)
         seq = apb_base_sequence::type_id::create("seq");
       
         if (!seq.randomize() with { addr == 12'h010; wdata == 32'h00FE; dir == APB_WRITE; }) begin
@@ -67,7 +67,7 @@
       
         `uvm_info("TEST_DEBUG", $sformatf("item: %0s", seq.req.convert2string()), UVM_LOW)
         
-//         5     SR       0x00C   poll    TIP(bit1)=0 olana kadar READ
+//         5     SR       0x00C   poll    READ until TIP(bit1)=0
         env.agent_apb.driver.set_report_verbosity_level(UVM_NONE);
         env.agent_apb.monitor.set_report_verbosity_level(UVM_NONE);
         do begin
@@ -76,10 +76,10 @@
             `uvm_error("RAND_FAIL_TEST", "apb_item randomization failed due to constraint conflict!")
           end
           seq.start(env.agent_apb.sequencer);
-        end while(seq.req.rdata[1] == 1);  // TIP hâlâ 1 → tekrar oku
+        end while(seq.req.rdata[1] == 1);  // TIP is still 1 → read again
         env.agent_apb.driver.set_report_verbosity_level(UVM_MEDIUM);
         env.agent_apb.monitor.set_report_verbosity_level(UVM_MEDIUM);
-//         6     SR       0x00C   kontrol RxACK(bit7)=0 ise ACK gelmiş
+//         6     SR       0x00C   Check RxACK(bit7)=0 → ACK received.
         if(seq.req.rdata[7] == 1) `uvm_error("I2C_NACK", "Slave did not acknowledge the address")
         else `uvm_info("TEST_DEBUG", "Slave ACK received", UVM_LOW)
         
@@ -94,7 +94,7 @@
       
         `uvm_info("TEST_DEBUG", $sformatf("item: %0s", seq.req.convert2string()), UVM_LOW)
         
-//         8     CMD      0x014   0x0010  WR=1 (data gönder)
+//         8     CMD      0x014   0x0010  WR=1 (send data)
         seq = apb_base_sequence::type_id::create("seq");
       
         if (!seq.randomize() with { addr == 12'h014; wdata == 32'h0010; dir == APB_WRITE; }) begin
@@ -105,7 +105,7 @@
       
         `uvm_info("TEST_DEBUG", $sformatf("item: %0s", seq.req.convert2string()), UVM_LOW)
         
-//         9     SR       0x00C   poll    TIP=0 bekle
+//         9     SR       0x00C   poll    wait TIP=0
         env.agent_apb.driver.set_report_verbosity_level(UVM_NONE);
         env.agent_apb.monitor.set_report_verbosity_level(UVM_NONE);
         do begin
@@ -114,16 +114,16 @@
             `uvm_error("RAND_FAIL_TEST", "apb_item randomization failed due to constraint conflict!")
           end
           seq.start(env.agent_apb.sequencer);
-        end while(seq.req.rdata[1] == 1);  // TIP hâlâ 1 → tekrar oku
+        end while(seq.req.rdata[1] == 1);  // TIP is still 1 → read again
         env.agent_apb.driver.set_report_verbosity_level(UVM_MEDIUM);
         env.agent_apb.monitor.set_report_verbosity_level(UVM_MEDIUM);
-        // Adım 9 polling sonrası
+        // Adım 9 after polling
         if(seq.req.rdata[7] == 1)
           `uvm_error("I2C_NACK", "Slave did not acknowledge the data byte")
         else
           `uvm_info("TEST_DEBUG", "Data byte ACK received", UVM_LOW)
         
-//         10    CMD      0x014   0x0040  STO=1 (STOP gönder)
+//         10    CMD      0x014   0x0040  STO=1 (send STOP)
         seq = apb_base_sequence::type_id::create("seq");
       
         if (!seq.randomize() with { addr == 12'h014; wdata == 32'h0040; dir == APB_WRITE; delay == 0; }) begin
