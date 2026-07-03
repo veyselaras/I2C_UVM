@@ -147,17 +147,6 @@ Two status bits used heavily in tests:
 
 Active UVM agent driving AMBA APB3 transactions. Uses clocking blocks in the interface to prevent race conditions.
 
-### Protocol Handshake
-
-```
-        SETUP        ACCESS (wait)     ACCESS (done)    IDLE
-      +--------+   +-----------+   +------------+   +------+
-PCLK   _|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-|_|-
-PSEL   _|                                       |________
-PENABLE ___|                                    |________
-PREADY ___________________________|_______|_____________
-```
-
 The driver walks through three phases:
 1. **SETUP** — Assert PSEL, drive PADDR/PWDATA/PWRITE (1 cycle)
 2. **ACCESS** — Assert PENABLE, wait for PREADY = 1
